@@ -1,5 +1,4 @@
 /* eslint-disable no-param-reassign */
-/* eslint-disable object-shorthand */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-multi-spaces */
 const express = require('express');
@@ -44,16 +43,16 @@ const run = async () => {
         });
 
         // record user
-        app.put('/user/:email', async (res, req) => {
+        app.put('/user/:email', async (req, res) => {
             const { email } = req.params;
             const user = req.body;
-            const filter = { email: email };
+            const filter = { email };
             const options = { upsert: true };
-            const updatedDoc = {
+            const updateDoc = {
                 $set: user,
             };
 
-            const result = await userCollection.updateOne(filter, updatedDoc, options);
+            const result = await userCollection.updateOne(filter, updateDoc, options);
             res.send(result);
         });
 
@@ -65,7 +64,7 @@ const run = async () => {
             const services = await serviceCollection.find().toArray();
 
             // get booking of that date
-            const query = { date: date };
+            const query = { date };
             const bookings = await bookingsCollection.find(query).toArray();
 
             // filter bookings
@@ -80,7 +79,7 @@ const run = async () => {
         // get particular
         app.get('/booking', async (req, res) => {
             const { patient } = req.query;
-            const query = { patient: patient };
+            const query = { patient };
             const bookings = await bookingsCollection.find(query).toArray();
             res.send(bookings);
         });

@@ -59,6 +59,18 @@ const run = async () => {
             res.send(services);
         });
 
+        // admin role
+        app.put('/user/admin/:email', verifyJWT, async (req, res) => {
+            const { email } = req.params;
+            const filter = { email };
+
+            const updateDoc = {
+                $set: { role: 'admin' },
+            };
+            const result = await userCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        });
+
         // record user
         app.put('/user/:email', async (req, res) => {
             const { email } = req.params;
@@ -75,7 +87,7 @@ const run = async () => {
         });
 
         // get all users
-        app.get('/user', async (req, res) => {
+        app.get('/user', verifyJWT, async (req, res) => {
             const users = await userCollection.find().toArray();
             res.send(users);
         });

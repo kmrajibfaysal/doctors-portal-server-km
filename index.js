@@ -74,6 +74,12 @@ const run = async () => {
             res.send({ result, token });
         });
 
+        // get all users
+        app.get('/user', async (req, res) => {
+            const users = await userCollection.find().toArray();
+            res.send(users);
+        });
+
         // available slot api
         app.get('/available', async (req, res) => {
             const date = req.query.date || 'May 14, 2022';
@@ -98,7 +104,6 @@ const run = async () => {
         app.get('/booking', verifyJWT, async (req, res) => {
             const { patient } = req.query;
             const decodedEmail = req.decoded.email;
-            console.log(decodedEmail);
 
             if (patient === decodedEmail) {
                 const query = { patient };

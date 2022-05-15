@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-multi-spaces */
@@ -17,6 +18,21 @@ app.use(express.json());
 app.get('/', (req, res) => {
     res.send(`Doctors portal server running on port ${port}`);
 });
+// verify token
+
+const verifyJWT = (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res.status(401).send({ message: 'UnAuthorized access!' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+        if (err) return res.status(403).send({ message: 'Forbidden Access!' });
+        req.decoded = decoded;
+        next();
+    });
+};
 
 // Database connection
 // eslint-disable-next-line prettier/prettier
@@ -79,11 +95,17 @@ const run = async () => {
             res.send(services);
         });
         // get particular
-        app.get('/booking', async (req, res) => {
+        app.get('/booking', verifyJWT, async (req, res) => {
             const { patient } = req.query;
-            const query = { patient };
-            const bookings = await bookingsCollection.find(query).toArray();
-            res.send(bookings);
+            const decodedEmail = req.decoded.email;
+            console.log(decodedEmail);
+
+            if (patient === decodedEmail) {
+                const query = { patient };
+                const bookings = await bookingsCollection.find(query).toArray();
+                return res.send(bookings);
+            }
+            return res.status(403).send({ message: 'Forbidden access!' });
         });
 
         // booking api
